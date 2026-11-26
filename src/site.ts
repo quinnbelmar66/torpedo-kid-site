@@ -16,7 +16,7 @@ export const contact = {
 
 // Behold JSON feed URL for the Instagram section, e.g. 'https://feeds.behold.so/AbC123'.
 // Leave empty to show a "Follow us" panel instead. Not a secret: Behold feed URLs are public.
-export const instagramFeed = '';
+export const instagramFeed = 'https://feeds.behold.so/jtny0BkhtR7fPY4TCCJa';
 
 // Application form (Google Forms; applicants sign in so their email is recorded).
 export const applyForm =

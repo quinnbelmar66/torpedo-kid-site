@@ -5,6 +5,7 @@ import StructuredData from '~/components/common/StructuredData.astro';
 import Car from '~/components/torpedo/Car.astro';
 import Specs from '~/components/torpedo/Specs.astro';
 import InstagramFeed from '~/components/torpedo/InstagramFeed.astro';
+import Road from '~/components/torpedo/Road.astro';
 import Partners from '~/components/torpedo/Partners.astro';
 import cad from '~/assets/images/torpedo/car/cad-assembly.jpg';
 import { SITE } from 'astrowind:config';
@@ -86,6 +87,14 @@ const structuredData = [
           <Specs />
           <p class="photo-note">Design targets and estimates. The body is not shown.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="road-band" id="road">
+    <div class="road-pin">
+      <div class="wrap">
+        <Road />
       </div>
     </div>
   </section>
@@ -266,6 +275,30 @@ const structuredData = [
   }
   .car-now .photo-note {
     margin-top: 1.75rem;
+  }
+  .road-band {
+    background: var(--charcoal);
+    color: var(--cream);
+  }
+  .road-pin {
+    padding-block: var(--section);
+  }
+  /* Wide screens with motion: the map stays in view while scrolling drives the car. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .road-band {
+      height: 260vh;
+    }
+    .road-pin {
+      position: sticky;
+      top: 4.5rem;
+      min-height: calc(100svh - 4.5rem);
+      display: flex;
+      align-items: center;
+      padding-block: 2rem;
+    }
+    .road-pin > .wrap {
+      width: 100%;
+    }
   }
   .instagram {
     background: var(--cream);

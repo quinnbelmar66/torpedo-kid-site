@@ -1,0 +1,286 @@
+---
+// "The road to Sweden": a stylised route from Eindhoven through Germany and
+// Denmark to Sweden. The milestones are the project's own timeline, spaced
+// evenly along the route. Scrolling draws the route and drives the car along
+// it; without JavaScript or with reduced motion the car waits at "this year".
+import { VIEW, LAND, BORDERS, ROUTE, LABELS } from './roadMap';
+import { years } from '~/car';
+
+type P = [number, number];
+const stops = [...years.map(([label, text]) => ({ label, text })), { label: 'Next', text: 'Drive it to Sweden.' }];
+const NOW = Math.max(
+  0,
+  stops.findIndex((s) => s.text.startsWith('This year'))
+);
+
+// Positions along the route by length, so stops are spaced evenly in distance.
+const cum = [0];
+for (let i = 1; i < ROUTE.length; i++)
+  cum.push(cum[i - 1] + Math.hypot(ROUTE[i][0] - ROUTE[i - 1][0], ROUTE[i][1] - ROUTE[i - 1][1]));
+const total = cum[cum.length - 1];
+const pointAt = (f: number): P => {
+  const L = f * total;
+  const i = Math.max(
+    1,
+    cum.findIndex((c) => c >= L)
+  );
+  const k = (L - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
+  return [ROUTE[i - 1][0] + k * (ROUTE[i][0] - ROUTE[i - 1][0]), ROUTE[i - 1][1] + k * (ROUTE[i][1] - ROUTE[i - 1][1])];
+};
+const angleAt = (f: number) => {
+  const a = pointAt(Math.max(0, f - 0.005));
+  const b = pointAt(Math.min(1, f + 0.005));
+  return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+};
+const at = stops.map((_, i) => i / (stops.length - 1));
+const routeD = 'M' + ROUTE.map(([x, y]) => `${x} ${y}`).join(' L');
+const nowAt = at[NOW];
+const [cx, cy] = pointAt(nowAt);
+const start = ROUTE[0];
+---
+
+<div class="road" data-road data-now={nowAt}>
+  <div class="copy">
+    <h2 class="title">The road to Sweden</h2>
+    <ol class="stops">
+      {
+        stops.map((s, i) => (
+          <li data-at={at[i]} class:list={{ passed: at[i] <= nowAt, now: i === NOW }}>
+            <span class="when">{s.label}</span>
+            <span class="what">{s.text}</span>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="note">The route shows the idea, not a planned itinerary.</p>
+  </div>
+
+  <figure class="map">
+    <svg
+      viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
+      role="img"
+      aria-label="Map of a route from Eindhoven through Germany and Denmark to Sweden"
+    >
+      <g class="land">{LAND.map((d) => <path d={d} />)}</g>
+      <g class="borders">{BORDERS.map((d) => <path d={d} />)}</g>
+      <g class="labels">
+        {
+          LABELS.map((l) => (
+            <text x={l.x} y={l.y} text-anchor={l.anchor}>
+              {l.text}
+            </text>
+          ))
+        }
+      </g>
+      <circle class="home" cx={start[0]} cy={start[1]} r="5"></circle>
+      <path class="ghost" d={routeD}></path>
+      <path class="drawn" d={routeD} pathLength="1" style={`stroke-dashoffset: ${1 - nowAt}`} data-draw></path>
+      {
+        at.map((f, i) => {
+          const [x, y] = pointAt(f);
+          return (
+            <circle
+              class:list={['stop', { passed: f <= nowAt, now: i === NOW }]}
+              cx={x.toFixed(1)}
+              cy={y.toFixed(1)}
+              r={i === NOW ? 8 : 6}
+              data-dot={f}
+            />
+          );
+        })
+      }
+      <g
+        class="car"
+        transform={`translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${angleAt(nowAt).toFixed(1)})`}
+        data-car
+      >
+        <path d="M-22 0 C-18 -9 8 -10 22 0 C8 10 -18 9 -22 0 Z" fill="#f3f0e8"></path>
+        <circle cx="-1" cy="0" r="4.2" fill="#8c3830"></circle>
+        <rect x="-15" y="-12" width="9" height="4" rx="2" fill="#171816"></rect>
+        <rect x="-15" y="8" width="9" height="4" rx="2" fill="#171816"></rect>
+        <rect x="8" y="-11" width="9" height="4" rx="2" fill="#171816"></rect>
+        <rect x="8" y="7" width="9" height="4" rx="2" fill="#171816"></rect>
+      </g>
+    </svg>
+  </figure>
+</div>
+
+<script>
+  // Scroll drives the car: on wide screens the section is pinned and progress is how far
+  // through the section you are; on narrow screens it follows the map through the viewport.
+  function setupRoad() {
+    const root = document.querySelector<HTMLElement>('[data-road]');
+    if (!root) return;
+    const draw = root.querySelector<SVGPathElement>('[data-draw]');
+    const car = root.querySelector<SVGGElement>('[data-car]');
+    const map = root.querySelector<HTMLElement>('.map');
+    const section = root.closest<HTMLElement>('section');
+    if (!draw || !car || !map || !section) return;
+    const items = [...root.querySelectorAll<HTMLElement>('li[data-at]')];
+    const dots = [...root.querySelectorAll<SVGCircleElement>('[data-dot]')];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const pinned = window.matchMedia('(min-width: 64rem) and (prefers-reduced-motion: no-preference)');
+    const length = draw.getTotalLength();
+    const nowAt = Number(root.dataset.now);
+
+    const place = (p: number) => {
+      draw.style.strokeDashoffset = String(1 - p);
+      const l = p * length;
+      const a = draw.getPointAtLength(Math.max(0, l - 2));
+      const b = draw.getPointAtLength(Math.min(length, l + 2));
+      const at = draw.getPointAtLength(l);
+      const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+      car.setAttribute('transform', `translate(${at.x.toFixed(1)} ${at.y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
+      for (const el of items) el.classList.toggle('passed', Number(el.dataset.at) <= p + 0.002);
+      for (const el of dots) el.classList.toggle('passed', Number(el.dataset.dot) <= p + 0.002);
+    };
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      if (reduce.matches) return place(nowAt);
+      const vh = window.innerHeight;
+      let p: number;
+      if (pinned.matches) {
+        const r = section.getBoundingClientRect();
+        p = -r.top / Math.max(1, r.height - vh);
+      } else {
+        const r = map.getBoundingClientRect();
+        p = (vh * 0.85 - r.top) / (r.height + vh * 0.2);
+      }
+      place(Math.min(1, Math.max(0, p)));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    reduce.addEventListener('change', onScroll);
+    update();
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+        reduce.removeEventListener('change', onScroll);
+      },
+      { once: true }
+    );
+  }
+  document.addEventListener('astro:page-load', setupRoad);
+</script>
+
+<style>
+  .road {
+    display: grid;
+    gap: 2.5rem clamp(2rem, 6vw, 6rem);
+    align-items: center;
+  }
+  .title {
+    color: var(--cream);
+  }
+  .stops {
+    display: grid;
+    gap: 1rem;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .stops li {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: 0 1rem;
+    align-items: baseline;
+    font-size: 1.125rem;
+    line-height: 1.45;
+    color: var(--light-text);
+    transition: color 0.25s;
+  }
+  .stops li.passed {
+    color: var(--cream);
+  }
+  .when {
+    color: var(--light-brass);
+    font-variant-numeric: tabular-nums;
+  }
+  .stops li.now .what {
+    font-weight: 600;
+  }
+  .note {
+    margin-top: 1.75rem;
+    font-size: 0.9375rem;
+    color: var(--light-text);
+  }
+  .map {
+    width: min(100%, 42rem);
+    justify-self: center;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: calc(100svh - 8rem);
+    /* soft edges, so the land has no hard frame */
+    mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 72%, transparent 100%);
+  }
+  .land path {
+    fill: rgb(216 212 201 / 0.08);
+    stroke: rgb(216 212 201 / 0.45);
+    stroke-width: 1.1;
+    stroke-linejoin: round;
+  }
+  .borders path {
+    fill: none;
+    stroke: rgb(216 212 201 / 0.25);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+  }
+  .labels text {
+    font-family: var(--font-familjen), sans-serif;
+    font-size: 21px;
+    letter-spacing: 0.02em;
+    fill: var(--light-text);
+  }
+  .home {
+    fill: var(--light-brass);
+  }
+  .ghost,
+  .drawn {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ghost {
+    stroke: rgb(216 212 201 / 0.55);
+    stroke-width: 1.6;
+    stroke-dasharray: 1 7;
+  }
+  .drawn {
+    stroke: var(--light-brass);
+    stroke-width: 3.5;
+    stroke-dasharray: 1 1;
+  }
+  .stop {
+    fill: var(--charcoal);
+    stroke: var(--light-text);
+    stroke-width: 2;
+    transition: fill 0.25s;
+  }
+  .stop.passed {
+    fill: var(--light-brass);
+    stroke: var(--light-brass);
+  }
+  .stop.now {
+    stroke: var(--cream);
+    stroke-width: 3;
+  }
+  @media (min-width: 64rem) {
+    .road {
+      grid-template-columns: 5fr 6fr;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stops li,
+    .stop {
+      transition: none;
+    }
+  }
+</style>

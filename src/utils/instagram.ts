@@ -33,7 +33,11 @@ let cache: Promise<InstagramPost[]> | undefined;
 
 const describe = (p: BeholdPost) => {
   if (p.altText) return p.altText;
-  const caption = (p.prunedCaption ?? '').replace(/\s+/g, ' ').trim();
+  // Emoji are read out by screen readers, so leave them out of the alt text.
+  const caption = (p.prunedCaption ?? '')
+    .replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   if (!caption) return 'Instagram post from the TorpedoKid team';
   return caption.length > 140 ? caption.slice(0, 137).trimEnd() + '…' : caption;
 };
