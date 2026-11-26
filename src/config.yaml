@@ -2,7 +2,7 @@ site:
   name: TorpedoKid
   site: 'https://torpedokid.nl'
   base: '/'
-  trailingSlash: false
+  trailingSlash: true
 
   googleSiteVerificationId: null
 

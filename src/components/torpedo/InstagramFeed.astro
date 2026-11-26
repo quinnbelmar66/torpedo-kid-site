@@ -1,0 +1,85 @@
+---
+import { Image } from 'astro:assets';
+import { contact } from '~/site';
+import { getInstagramPosts } from '~/utils/instagram';
+
+const posts = await getInstagramPosts(6);
+const handle = '@' + contact.instagram.replace(/\/$/, '').split('/').pop();
+---
+
+<div class="insta">
+  <div class="head">
+    <h2 class="title">From the workshop</h2>
+    <a class="textlink" href={contact.instagram} target="_blank" rel="noopener noreferrer">
+      Follow {handle} on Instagram
+    </a>
+  </div>
+  {
+    posts.length > 0 ? (
+      <ul class="grid">
+        {posts.map((p) => (
+          <li>
+            <a href={p.permalink} target="_blank" rel="noopener noreferrer">
+              <Image
+                src={p.src}
+                width={p.width}
+                height={p.height}
+                alt={p.alt}
+                widths={[240, 360, Math.min(p.width, 560)]}
+                sizes="(min-width: 64rem) 22rem, (min-width: 40rem) 30vw, 46vw"
+                loading="lazy"
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty copy">
+        We post progress from the workshop on Instagram: parts as they are made, tests, and the people building the car.
+      </p>
+    )
+  }
+</div>
+
+<style>
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .head .textlink {
+    font-size: 1.125rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(0.5rem, 1.2vw, 1rem);
+  }
+  @media (min-width: 40rem) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .grid a {
+    display: block;
+    overflow: hidden;
+    background: var(--warm-grey);
+  }
+  .grid img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    transition: opacity 0.15s;
+  }
+  .grid a:hover img {
+    opacity: 0.85;
+  }
+  .empty {
+    max-width: 52ch;
+  }
+</style>

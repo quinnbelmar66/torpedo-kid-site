@@ -4,7 +4,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
 import Car from '~/components/torpedo/Car.astro';
 import Specs from '~/components/torpedo/Specs.astro';
-import WorkNow from '~/components/torpedo/WorkNow.astro';
+import InstagramFeed from '~/components/torpedo/InstagramFeed.astro';
 import Partners from '~/components/torpedo/Partners.astro';
 import cad from '~/assets/images/torpedo/car/cad-assembly.jpg';
 import { SITE } from 'astrowind:config';
@@ -36,7 +36,10 @@ const structuredData = [
     <div class="wrap hero-copy">
       <p class="kicker">History reimagined</p>
       <h1 class="display">Bringing an electric pioneer back to life.</h1>
-      <a class="cta" href="#about">About the project</a>
+      <div class="actions">
+        <a class="cta" href={getPermalink('/join-us')}>Join the team</a>
+        <a class="secondary" href="#about">About the project</a>
+      </div>
     </div>
     <div class="road">
       <div class="roll-in">
@@ -68,6 +71,7 @@ const structuredData = [
             Kid.
           </p>
           <p>This year we want to drive it for the first time, on a private road. After that comes Sweden.</p>
+          <p><a href={`${getPermalink('/about')}#work`}>See what each team is working on</a></p>
         </div>
       </div>
       <div class="car-now">
@@ -86,11 +90,9 @@ const structuredData = [
     </div>
   </section>
 
-  <section class="band work" id="work">
+  <section class="band instagram" id="instagram">
     <div class="wrap">
-      <h2 class="title">What we are working on now</h2>
-      <WorkNow />
-      <a class="textlink" href={getPermalink('/about')}>See how the project got here</a>
+      <InstagramFeed />
     </div>
   </section>
 
@@ -131,8 +133,22 @@ const structuredData = [
   h1 {
     max-width: 14ch;
   }
-  .hero .cta {
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
     margin-top: 2rem;
+  }
+  .secondary {
+    color: var(--light-text);
+    text-decoration: underline;
+    text-decoration-color: var(--brass);
+    text-underline-offset: 0.25em;
+    padding-block: 0.75rem;
+  }
+  .secondary:hover {
+    color: var(--cream);
   }
   .road {
     display: flex;
@@ -251,16 +267,8 @@ const structuredData = [
   .car-now .photo-note {
     margin-top: 1.75rem;
   }
-  .work {
+  .instagram {
     background: var(--cream);
-  }
-  .work .title {
-    margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
-  }
-  .work .textlink {
-    display: inline-block;
-    margin-top: clamp(2.5rem, 5vw, 4rem);
-    font-size: 1.125rem;
   }
   .partners-band .title {
     max-width: 22ch;

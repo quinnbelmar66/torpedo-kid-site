@@ -118,7 +118,7 @@ export default defineConfig({
     // native <Image /> (i.e. providers Unpic can't detect, like Pixabay).
     // Listed entries are authorized to be processed by Sharp.
     // Unsplash is listed so post covers can be rendered as real 1200×626 Open Graph images.
-    domains: ['cdn.pixabay.com', 'images.unsplash.com'],
+    domains: ['cdn.pixabay.com', 'images.unsplash.com', 'behold.pictures', 'cdn.behold.pictures'],
 
     // Emit responsive styles for the native <Image layout=…> used by
     // src/components/common/Image.astro (local images). Utility classes on

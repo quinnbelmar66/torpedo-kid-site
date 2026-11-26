@@ -5,6 +5,9 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+  # Daily rebuild so the Instagram section picks up new posts.
+  schedule:
+    - cron: '17 5 * * *'
 
 permissions:
   contents: read

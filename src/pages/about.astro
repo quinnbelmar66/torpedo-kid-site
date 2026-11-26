@@ -3,10 +3,10 @@ import { Image } from 'astro:assets';
 import Layout from '~/layouts/PageLayout.astro';
 import PageIntro from '~/components/torpedo/PageIntro.astro';
 import Specs from '~/components/torpedo/Specs.astro';
+import WorkNow from '~/components/torpedo/WorkNow.astro';
 import closeUp from '~/assets/images/torpedo/glenville-999-1903.jpg';
 import { years } from '~/car';
 import { photoSource } from '~/site';
-import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: 'About',
@@ -42,13 +42,20 @@ const metadata = {
       <div>
         <Specs />
         <p class="photo-note">
-          Design targets and estimates. <a href={`${getPermalink('/')}#work`}>See what we are working on now</a>.
+          Design targets and estimates. <a href="#work">See what each team is working on</a>.
         </p>
       </div>
     </div>
   </section>
 
-  <section class="band">
+  <section class="band" id="work">
+    <div class="wrap">
+      <h2 class="title work-title">What we are working on now</h2>
+      <WorkNow />
+    </div>
+  </section>
+
+  <section class="band band-stone">
     <div class="wrap split">
       <h2 class="title">Safety</h2>
       <div class="copy">
@@ -65,7 +72,7 @@ const metadata = {
     </div>
   </section>
 
-  <section class="band band-stone">
+  <section class="band">
     <div class="wrap split origin">
       <div>
         <h2 class="title">Where the shape comes from</h2>
@@ -95,6 +102,9 @@ const metadata = {
 </Layout>
 
 <style>
+  .work-title {
+    margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+  }
   ol {
     display: grid;
     gap: 1.5rem;
