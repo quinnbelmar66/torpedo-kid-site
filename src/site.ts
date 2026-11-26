@@ -14,6 +14,10 @@ export const contact = {
   linkedin: 'https://www.linkedin.com/company/fontys-engineering-torpedokid/',
 };
 
+// Application form (Google Forms; applicants sign in so their email is recorded).
+export const applyForm =
+  'https://docs.google.com/forms/d/e/1FAIpQLSc4p8znoZhYt5e3m5y8SWBUHf52sX_6h8zfO-Xc7dvbm9TyLg/viewform';
+
 export const mailto = (subject?: string) =>
   `mailto:${contact.email}${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`;
 

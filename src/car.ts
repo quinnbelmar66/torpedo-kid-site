@@ -6,6 +6,7 @@ import steering from './assets/images/torpedo/car/steering.jpg';
 import driveShaft from './assets/images/torpedo/car/drive-shaft.jpg';
 import brakes from './assets/images/torpedo/car/brake-disc.jpg';
 import pedals from './assets/images/torpedo/car/pedal-box.jpg';
+import wiring from './assets/images/torpedo/car/wiring-diagram.png';
 
 export const specs: [string, string][] = [
   ['Seats', 'One'],
@@ -59,14 +60,35 @@ export const workNow = [
     cad: true,
   },
   {
-    name: 'Battery and electronics',
-    text: 'Two battery modules run in parallel at about 94 volts. A management system watches the cells, and the parts talk over one shared CAN network. Next we choose the last components and finish the network before wiring the car.',
+    name: 'Electrical system and wiring',
+    text: 'Our mechatronics students drew the wiring for the whole car: the high-voltage battery and motor circuit, and a separate 12-volt system that keeps the lights working after an emergency stop. They also set the requirements for the motor controller and listed the road-legal lights and safety parts the car needs.',
+    image: wiring,
+    alt: 'The team’s wiring diagram, showing the two batteries, relays, fuses, motor controller, emergency stop and 12-volt system.',
+    cad: true,
+  },
+  {
+    name: 'Battery management and CAN',
+    text: 'Two battery modules run in parallel at about 94 volts. We ordered the battery management system and designed the CAN network that lets it, the charger and the control unit share data. The emergency stop works two ways: a hardwired line cuts the battery, and a CAN message puts every part in a safe state. Next we choose the vehicle control unit and wire the car.',
   },
   {
     name: 'Cooling',
     text: 'We found a suitable BMW radiator and are testing the idea of a heatsink under the batteries. The first heatsink design was too large, so we are making it smaller and working out how the two fit together.',
   },
 ];
+
+// Recruitment: shared by the Join us page and the poster.
+export const roles: [string[], string[]] = [
+  ['Chassis', 'Suspension', 'Steering', 'Brakes and pedals'],
+  ['Drive shafts', 'Battery and electronics', 'Wiring and CAN', 'Cooling'],
+];
+
+export const join = {
+  title: 'Build an electric car.',
+  lead: 'Join the Fontys team recreating the 1902 Torpedo Kid.',
+  doing: 'Design, build, and test to get the car driving for the first time.',
+  getting:
+    'Hands-on experience on an electric car, working with industry partners. A project that stands out on your CV.',
+};
 
 export const years: [string, string][] = [
   ['2022–23', 'First concept, requirements and CAD designs.'],

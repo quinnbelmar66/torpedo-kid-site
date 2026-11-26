@@ -1,82 +1,134 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
-import PageIntro from '~/components/torpedo/PageIntro.astro';
-import { contact, mailto } from '~/site';
+import { applyForm } from '~/site';
+import { join, roles } from '~/car';
+import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: 'Join us',
-  description: 'Help us get the Torpedo Kid driving, and then take it to Sweden.',
+  description: 'Build an electric car with the Fontys team recreating the 1902 Torpedo Kid.',
 };
-
-const work = [
-  ['Mechanical engineering', 'Chassis, suspension, steering, brakes, drive shafts and cooling.'],
-  ['Electronics', 'The battery, its management system, the CAN network and road-legal lights.'],
-  ['Making and assembly', 'Turning CAD into parts, then fitting them to the car.'],
-  ['Telling the story', 'Photos, posts, this website and the people who help us along the way.'],
-];
 ---
 
 <Layout metadata={metadata}>
-  <PageIntro title="Help us build it, then drive it" lead="We are looking for students who like making things work.">
-    <a class="cta gap" href={mailto('Joining TorpedoKid')}>Email us about joining</a>
-  </PageIntro>
-
-  <section class="band">
+  <section class="intro">
     <div class="wrap">
-      <h2 class="title">Where you can help</h2>
-      <dl>
-        {
-          work.map(([k, v]) => (
-            <div class="split row">
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </div>
-          ))
-        }
-      </dl>
+      <h1 class="display">{join.title}</h1>
+      <p class="lead">{join.lead}</p>
+      <a class="cta apply" href={applyForm} target="_blank" rel="noopener noreferrer">Apply to join</a>
     </div>
   </section>
 
-  <section class="band band-stone">
+  <section class="band answers">
+    <div class="wrap">
+      <div class="split row">
+        <h2 class="title">What you’ll do</h2>
+        <p class="answer">{join.doing}</p>
+      </div>
+      <div class="split row">
+        <h2 class="title">Roles</h2>
+        <ul class="roles">
+          {roles.flat().map((r) => <li>{r}</li>)}
+        </ul>
+      </div>
+      <div class="split row">
+        <h2 class="title">What you get</h2>
+        <p class="answer">{join.getting}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band action">
     <div class="wrap split">
-      <h2 class="title">What to send</h2>
-      <div class="copy">
-        <p>Tell us what you study, what you would like to work on and how much time you have.</p>
-        <p>
-          Write to <a href={mailto('Joining TorpedoKid')}>{contact.email}</a> or message us on <a
-            href={contact.instagram}>Instagram</a
-          >.
-        </p>
+      <h2 class="display">Join the team</h2>
+      <div>
+        <p class="lead">Fill in the application form. You sign in with Google so we can reply to you.</p>
+        <a class="cta apply light" href={applyForm} target="_blank" rel="noopener noreferrer">Apply to join</a>
+        <p class="small">Questions first? <a href={getPermalink('/contact')}>Get in touch</a>.</p>
       </div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .gap {
-    margin-top: 2rem;
+  .intro {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding-block: clamp(3rem, 8vw, 7rem);
   }
-  dl {
-    display: grid;
-    gap: clamp(2rem, 3.5vw, 3rem);
+  .intro .lead {
+    color: var(--light-text);
+    margin-top: 1.5rem;
+    font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  }
+  .apply {
+    margin-top: 2.25rem;
+    font-size: 1.125rem;
+  }
+  .answers .row + .row {
     margin-top: clamp(2.5rem, 5vw, 4rem);
   }
-  .row {
-    align-items: baseline;
-    gap: 0.5rem clamp(2rem, 6vw, 6rem);
-  }
-  dt {
-    font-family: var(--font-besley), serif;
-    font-size: clamp(1.375rem, 2vw, 1.75rem);
-    letter-spacing: -0.015em;
+  .answers .title {
     color: var(--burgundy);
   }
-  dd {
-    margin: 0;
-    font-size: 1.1875rem;
-    line-height: 1.5;
-    color: var(--graphite);
-    max-width: 50ch;
+  .answer,
+  .roles {
+    font-size: clamp(1.25rem, 1.9vw, 1.625rem);
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--charcoal);
+    max-width: 30ch;
     text-wrap: pretty;
+  }
+  @media (min-width: 56rem) {
+    .answer,
+    .roles {
+      padding-top: 0.5rem;
+    }
+  }
+  .roles {
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    grid-auto-flow: column;
+    grid-template-rows: repeat(4, auto);
+    gap: 0.35rem 3rem;
+  }
+  @media (max-width: 30rem) {
+    .roles {
+      grid-template-columns: 1fr;
+      grid-auto-flow: row;
+      grid-template-rows: none;
+    }
+  }
+  .action {
+    background: var(--burgundy);
+    color: var(--cream);
+  }
+  .action .display {
+    font-family: var(--font-familjen), sans-serif;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .action .lead {
+    color: var(--cream);
+  }
+  .light {
+    background: var(--cream);
+    color: var(--burgundy);
+  }
+  .light:hover {
+    background: var(--white);
+  }
+  .small {
+    margin-top: 1.5rem;
+  }
+  .small a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .action :where(a):focus-visible {
+    outline-color: var(--cream);
   }
 </style>
